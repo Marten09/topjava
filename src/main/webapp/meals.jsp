@@ -7,8 +7,9 @@
     <title>Meals</title>
 </head>
 <body>
+<h3><a href="index.html">Home</a></h3>
     <table border=1>
-        <caption>Список еды:</caption>
+        <caption><h3>Список еды:</h3></caption>
         <thead>
             <tr>
                 <th>Date</th>
@@ -25,8 +26,8 @@
                     <td>${f:formatLocalDateTime(meal.dateTime)}</td>
                     <td>${meal.description}</td>
                     <td>${meal.calories}</td>
-                    <td><a href="meals?action=update&id=<c:out value="${meal.id}"/>">Update</a></td>
-                    <td><a href="meals?action=delete&id=<c:out value="${meal.id}"/>">Delete</a></td>
+                    <td><a href="meals?id=${meal.id}&action=update">Update</a></td>
+                    <td><a href="meals?id=${meal.id}&action=delete">Delete</a></td>
                 </tr>
             </c:forEach>
         </tbody>

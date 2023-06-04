@@ -6,8 +6,7 @@
 </head>
 <body>
 <h3><a href="index.html">Home</a></h3>
-<jsp:useBean id="status" scope="request" type="java.lang.Object"/>
-<h2>${status=="edit" ? "Edit meal" : "Add meal"}</h2>
+<h2>${param.action=="update" ? "Edit meal" : "Add meal"}</h2>
 <jsp:useBean id="meal" scope="request" type="ru.javawebinar.topjava.model.Meal"/>
 <form method="post" action="meals" name="frmAddMeal">
     <input type="hidden" name="id" value="${meal.id}">

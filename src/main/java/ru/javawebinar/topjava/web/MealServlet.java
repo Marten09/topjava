@@ -36,20 +36,17 @@ public class MealServlet extends HttpServlet {
                 log.debug("add new meal");
                 forward = INSERT_OR_EDIT;
                 request.setAttribute("meal", MealsUtil.emptyMeal());
-                request.setAttribute("status", "add");
                 break;
             case "update":
                 log.debug("update or edit meal");
                 int id = Integer.parseInt(request.getParameter("id"));
                 forward = INSERT_OR_EDIT;
                 request.setAttribute("meal", mealDao.get(id));
-                request.setAttribute("status", "edit");
                 break;
             case "delete":
                 log.debug("delete meal by id");
                 id = Integer.parseInt(request.getParameter("id"));
                 mealDao.delete(id);
-                request.setAttribute("meals", MealsUtil.filteredByStreams(mealDao.getAll(), LocalTime.MIN, LocalTime.MAX, MealsUtil.CALORIES_PER_DAY));
                 response.sendRedirect("meals");
                 return;
             default:
@@ -64,6 +61,7 @@ public class MealServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
+        log.debug("parse request parameters");
         String id = request.getParameter("id");
         LocalDateTime localDateTime = LocalDateTime.parse(request.getParameter("date"));
         String description = request.getParameter("description");
@@ -75,6 +73,7 @@ public class MealServlet extends HttpServlet {
             meal = new Meal(Integer.parseInt(id), localDateTime, description, calories);
         }
         mealDao.save(meal);
+        log.debug("redirect to meals list");
         response.sendRedirect("meals");
     }
 }

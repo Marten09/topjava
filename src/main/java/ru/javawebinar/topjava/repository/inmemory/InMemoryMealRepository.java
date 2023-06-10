@@ -26,6 +26,7 @@ public class InMemoryMealRepository implements MealRepository {
 
     {
         MealsUtil.meals.forEach(meal -> this.save(1, meal));
+        MealsUtil.meals2.forEach(meal -> this.save(2, meal));
     }
 
     @Override
@@ -41,7 +42,7 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public boolean delete(int userId, int id) {
-        ConcurrentHashMap<Integer, Meal> userMeals = repository.remove(userId);
+        ConcurrentHashMap<Integer, Meal> userMeals = repository.get(userId);
         return userMeals != null && userMeals.remove(id) != null;
     }
 
@@ -55,7 +56,7 @@ public class InMemoryMealRepository implements MealRepository {
     public Collection<Meal> getAll(int userId, LocalDate startDate, LocalDate endDate) {
         ConcurrentHashMap<Integer, Meal> userMeals = repository.get(userId);
         return userMeals == null ? Collections.emptyList() : userMeals.values().stream()
-                .filter(meal -> DateTimeUtil.isBetweenHalfOpen(meal.getDateTime(), convertToStartLocalDateTime(startDate),convertToEndLocalDateTime(endDate)))
+                .filter(meal -> DateTimeUtil.isBetweenHalfOpen(meal.getDateTime(), convertToStartLocalDateTime(startDate), convertToEndLocalDateTime(endDate)))
                 .sorted(Comparator.comparing(Meal::getDateTime).reversed())
                 .collect(Collectors.toList());
     }

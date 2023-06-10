@@ -5,9 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.repository.inmemory.InMemoryMealRepository;
-import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 
 import javax.servlet.ServletException;
@@ -23,7 +20,6 @@ import java.util.Objects;
 
 public class MealServlet extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(MealServlet.class);
-
     private ConfigurableApplicationContext appCtx;
     private MealRestController mealRestController;
 
@@ -41,9 +37,14 @@ public class MealServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
-        String dateTime =request.getParameter("dateTime");
-        if(dateTime == null) {
+        String dateTime = request.getParameter("dateTime");
+        if (dateTime == null) {
             request.setAttribute("controller", mealRestController);
+            mealRestController.setStartDate(LocalDate.parse(request.getParameter("startDate")));
+            mealRestController.setEndDate(LocalDate.parse(request.getParameter("endDate")));
+            mealRestController.setStartTime(LocalTime.parse(request.getParameter("startTime")));
+            mealRestController.setEndTime(LocalTime.parse(request.getParameter("endTime")));
+            response.sendRedirect("meals");
         } else {
             String id = request.getParameter("id");
 
@@ -86,7 +87,7 @@ public class MealServlet extends HttpServlet {
             default:
                 log.info("getAll");
                 request.setAttribute("controller", mealRestController);
-                if(mealRestController.getStartDate() == null || mealRestController.getEndDate() == null ||
+                if (mealRestController.getStartDate() == null || mealRestController.getEndDate() == null ||
                         mealRestController.getStartTime() == null || mealRestController.getEndTime() == null) {
                     log.info("getAllNotFiltered");
                     request.setAttribute("meals", mealRestController.getAll());
@@ -95,6 +96,7 @@ public class MealServlet extends HttpServlet {
                     request.setAttribute("meals", mealRestController.getAllFiltered());
                 }
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
+                response.sendRedirect("meals");
                 break;
         }
     }

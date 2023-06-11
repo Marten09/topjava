@@ -21,17 +21,16 @@
     <h3><a href="index.html">Home</a></h3>
     <hr/>
     <h2>Meals</h2>
-    <jsp:useBean id="controller" type="ru.javawebinar.topjava.web.meal.MealRestController" scope="request"/>
-    <form method="post" action="meals">
+    <form method="get" action="meals">
         <dl>
             <dt>StartDate</dt>
-            <dd><input type="date" value="${controller.startDate}" name="startDate" required></dd>
+            <dd><input type="date" value="${param.startDate}" name="startDate"></dd>
             <dt>EndDate</dt>
-            <dd><input type="date" value="${controller.endDate}" name="endDate" required></dd>
+            <dd><input type="date" value="${param.endDate}" name="endDate"></dd>
             <dt>StartTime</dt>
-            <dd><input type="time" value="${controller.startTime}" name="startTime" required></dd>
+            <dd><input type="time" value="${param.startTime}" name="startTime"></dd>
             <dt>EndTime</dt>
-            <dd><input type="time" value="${controller.endTime}" name="endTime" required></dd>
+            <dd><input type="time" value="${param.endTime}" name="endTime"></dd>
         </dl>
         <button type="submit">Do Filter</button>
     </form>

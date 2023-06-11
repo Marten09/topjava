@@ -9,7 +9,7 @@ import ru.javawebinar.topjava.to.MealTo;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Collection;
+import java.util.List;
 
 import static ru.javawebinar.topjava.util.MealsUtil.*;
 import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
@@ -21,42 +21,6 @@ import static ru.javawebinar.topjava.web.SecurityUtil.authUserId;
 public class MealRestController {
     protected final Logger log = LoggerFactory.getLogger(getClass());
     private final MealService service;
-    private LocalDate startDate = LocalDate.MIN;
-    private LocalDate endDate = LocalDate.MAX;
-    private LocalTime startTime = LocalTime.MIN;
-    private LocalTime endTime = LocalTime.MAX;
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
-    }
-
-    public LocalDate getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(LocalDate endDate) {
-        this.endDate = endDate;
-    }
-
-    public LocalTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public LocalTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(LocalTime endTime) {
-        this.endTime = endTime;
-    }
 
     public MealRestController(MealService service) {
         this.service = service;
@@ -78,14 +42,14 @@ public class MealRestController {
         return service.get(authUserId(), id);
     }
 
-    public Collection<MealTo> getAll() {
+    public List<MealTo> getAll() {
         log.info("getAll");
-        return getTos(service.getAll(authUserId(), startDate, endDate), authUserCaloriesPerDay());
+        return getAllFiltered(null, null, null, null);
     }
 
-    public Collection<MealTo> getAllFiltered() {
+    public List<MealTo> getAllFiltered(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
         log.info("getAllFiltered");
-        return getFilteredTos(service.getAll(authUserId(), startDate, endDate), authUserCaloriesPerDay(), startTime, endTime);
+        return getFilteredTos(service.getAllFiltered(authUserId(), startDate, endDate), authUserCaloriesPerDay(), startTime, endTime);
     }
 
     public void update(int id, Meal meal) {

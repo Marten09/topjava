@@ -32,7 +32,7 @@ public class InMemoryMealRepository implements MealRepository {
             userMeals.put(meal.getId(), meal);
             return meal;
         }
-        return repository.get(userId).computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
+        return userMeals.computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
     }
 
     @Override

@@ -8,7 +8,7 @@ public class DateTimeUtil {
 
     public static <T extends Comparable<T>> boolean isBetweenHalfOpen(T checkedValue, T startValue, T endValue) {
         return (startValue == null || (checkedValue.compareTo(startValue) >= 0))
-                && (endValue == null || (checkedValue.compareTo(endValue) <= 0));
+                && (endValue == null || (checkedValue.compareTo(endValue) < 0));
     }
 
     public static String toString(LocalDateTime ldt) {

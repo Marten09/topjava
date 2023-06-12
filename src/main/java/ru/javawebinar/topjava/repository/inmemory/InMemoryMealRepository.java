@@ -8,7 +8,6 @@ import ru.javawebinar.topjava.util.MealsUtil;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -66,7 +65,7 @@ public class InMemoryMealRepository implements MealRepository {
     }
 
     private LocalDateTime convertToEndLocalDateTime(LocalDate endDate) {
-        return endDate == null ? null : endDate.atTime(LocalTime.MAX);
+        return endDate == null ? null : endDate.atStartOfDay().plusDays(1);
     }
 }
 

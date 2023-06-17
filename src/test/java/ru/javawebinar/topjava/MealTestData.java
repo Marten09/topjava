@@ -19,7 +19,7 @@ public class MealTestData {
     public static final Meal userMeal7 = new Meal(START_SEQ + 9, LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410);
     public static final Meal adminMeal1 = new Meal(START_SEQ + 10, LocalDateTime.of(2020, Month.JANUARY, 31, 14, 0), "Обед админа", 800);
     public static final Meal adminMeal2 = new Meal(START_SEQ + 11, LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин админа", 910);
-    public static final Meal MEAL_NOT_FOUND = new Meal(START_SEQ + 15, LocalDateTime.of(2020, Month.MARCH, 31, 20, 0), "Ужин", 210);
+    public static final Meal notFoundMeal = new Meal(START_SEQ + 15, LocalDateTime.of(2020, Month.MARCH, 31, 20, 0), "Ужин", 210);
     public static final int NOT_FOUND = 10;
 
     public static Meal getNew() {
@@ -31,7 +31,7 @@ public class MealTestData {
     }
 
     public static void assertMatch(Meal actual, Meal expected) {
-        assertThat(actual).usingRecursiveComparison().ignoringFields("registered", "roles").isEqualTo(expected);
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 
     public static void assertMatch(Iterable<Meal> actual, Meal... expected) {
@@ -39,6 +39,6 @@ public class MealTestData {
     }
 
     public static void assertMatch(Iterable<Meal> actual, Iterable<Meal> expected) {
-        assertThat(actual).usingRecursiveFieldByFieldElementComparatorIgnoringFields("registered", "roles").isEqualTo(expected);
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 }

@@ -13,6 +13,7 @@ import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
 
@@ -106,9 +107,8 @@ public class MealServiceTest {
 
     @Test
     public void updateStrangerMeal() {
-        Meal meal = adminMeal1;
-        assertThrows(NotFoundException.class, () ->
-                service.update(meal, USER_ID));
+        assertThrows(NotFoundException.class, () -> service.update(new Meal(adminMeal1.getId(),
+                LocalDateTime.of(2020, Month.JANUARY, 1, 10, 0), "eat", 300), USER_ID));
     }
 
     @Test

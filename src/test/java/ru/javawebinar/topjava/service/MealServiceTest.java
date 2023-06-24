@@ -35,10 +35,10 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 })
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
-@Ignore
 public class MealServiceTest {
     private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
-    private static final List<String> list = new LinkedList<>();
+    private static final List<String> finishedTestList = new LinkedList<>();
+
     @Rule
     public Stopwatch stopwatch = new Stopwatch() {
         @Override
@@ -46,15 +46,16 @@ public class MealServiceTest {
             String testName = description.getMethodName();
             long millis = TimeUnit.NANOSECONDS.toMillis(nanos);
             log.info(" Test {}, spent {} ms", testName, millis);
-            list.add(String.format("%-25s %5d", testName, millis));
+            finishedTestList.add(String.format("%-25s %5d", testName, millis));
         }
     };
+
     @Autowired
     private MealService service;
 
     @AfterClass
     public static void afterClass() {
-        log.info("\nTests time report (time in ms):\n{}", String.join("\n", list));
+        log.info("\nTests time report (time in ms):\n{}", String.join("\n", finishedTestList));
     }
 
     @Test

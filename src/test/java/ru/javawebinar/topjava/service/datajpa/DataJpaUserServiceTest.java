@@ -10,6 +10,7 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
+import static ru.javawebinar.topjava.MealTestData.NOT_FOUND;
 import static ru.javawebinar.topjava.UserTestData.*;
 
 @ActiveProfiles(Profiles.DATAJPA)
@@ -22,7 +23,7 @@ public class DataJpaUserServiceTest extends UserServiceTest {
     }
 
     @Test
-    public void getWithoutMeals() {
-        assertThrows(NotFoundException.class, () -> service.getWithMeals(GUEST_ID));
+    public void getWithMealsNotFound() {
+        assertThrows(NotFoundException.class, () -> service.getWithMeals(NOT_FOUND));
     }
 }

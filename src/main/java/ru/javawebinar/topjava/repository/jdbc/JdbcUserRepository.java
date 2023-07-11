@@ -8,15 +8,18 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public class JdbcUserRepository implements UserRepository {
 
     private static final BeanPropertyRowMapper<User> ROW_MAPPER = BeanPropertyRowMapper.newInstance(User.class);
+    private static final BeanPropertyRowMapper<Role> ROLE_ROW_MAPPER = BeanPropertyRowMapper.newInstance(Role.class);
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -52,13 +55,19 @@ public class JdbcUserRepository implements UserRepository {
 
     @Override
     public boolean delete(int id) {
-        return jdbcTemplate.update("DELETE FROM users WHERE id=?", id) != 0;
+        return jdbcTemplate.update("DELETE FROM users WHERE id=?", id) + jdbcTemplate.update("DELETE FROM user_role WHERE user_id=?", id)!= 0;
     }
 
     @Override
     public User get(int id) {
         List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE id=?", ROW_MAPPER, id);
-        return DataAccessUtils.singleResult(users);
+        List<Role> roles = jdbcTemplate.query("SELECT role FROM user_role WHERE user_id=?", ROLE_ROW_MAPPER, id);
+        List<User> userWithRoles = new ArrayList<>();
+        for(User user: users) {
+            user.setRoles(roles);
+            userWithRoles.add(user);
+        }
+        return DataAccessUtils.singleResult(userWithRoles);
     }
 
     @Override

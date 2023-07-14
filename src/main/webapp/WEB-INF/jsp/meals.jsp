@@ -12,11 +12,10 @@
 <body>
 <jsp:include page="fragments/bodyHeader.jsp"/>
 <section>
-    <h3><a href="index.jsp"><spring:message code="app.home"/></a></h3>
+<%--    <h3><a href="index.jsp"><spring:message code="app.home"/></a></h3>--%>
     <hr/>
     <h2><spring:message code="meal.title"/></h2>
     <form method="get" action="<spring:url value="/meals/filter"/>">
-        <input type="hidden" name="action" value="filter">
         <dl>
             <dt><spring:message code="meal.fromDate"/>:</dt>
             <dd><input type="date" name="startDate" value="${param.startDate}"></dd>

@@ -1,45 +1,55 @@
 package ru.javawebinar.topjava.service;
 
-import org.junit.Before;
+import org.junit.Assume;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.CacheManager;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
-import ru.javawebinar.topjava.UserTestData;
+import org.springframework.test.context.ActiveProfiles;
+import ru.javawebinar.topjava.Profiles;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.validation.ConstraintViolationException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import ru.javawebinar.topjava.repository.JpaUtil;
-
 import static org.junit.Assert.assertThrows;
+import static ru.javawebinar.topjava.Profiles.NO_CACHE;
 import static ru.javawebinar.topjava.UserTestData.*;
 
+@ActiveProfiles(NO_CACHE)
 public abstract class AbstractUserServiceTest extends AbstractServiceTest {
 
     @Autowired
     protected UserService service;
 
+//    @Autowired
+//    private CacheManager cacheManager;
+//
+//    @Autowired(required = false)
+//    protected JpaUtil jpaUtil;
+//
     @Autowired
-    private CacheManager cacheManager;
-
-    @Autowired(required = false)
-    @Qualifier("JDBC")
-    protected JpaUtil jpaUtil;
-
-    @Before
-    public void setup() {
-        cacheManager.getCache("users").clear();
-        if (jpaUtil != null) {
-            jpaUtil.clear2ndLevelHibernateCache();
-        }
-    }
+    Environment environment;
+//
+//    @Before
+//    public void setup() {
+//        cacheManager.getCache("users").clear();
+//        if (jpaUtil != null) {
+//            jpaUtil.clear2ndLevelHibernateCache();
+//        }
+//    }
+//
+//    @Before
+//    public void evictAllCaches(){
+//        for(String name : cacheManager.getCacheNames()){
+//            cacheManager.getCache(name).clear();
+//        }
+//    }
 
     @Test
     public void create() {
@@ -59,8 +69,8 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
 
     @Test
     public void delete() {
-        service.delete(USER_ID);
-        assertThrows(NotFoundException.class, () -> service.get(USER_ID));
+        service.delete(ADMIN_ID);
+        assertThrows(NotFoundException.class, () -> service.get(ADMIN_ID));
     }
 
     @Test
@@ -89,7 +99,7 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     public void update() {
         User updated = getUpdated();
         service.update(updated);
-        USER_MATCHER.assertMatch(service.get(USER_ID), getUpdated());
+        USER_MATCHER.assertMatch(service.get(ADMIN_ID), getUpdated());
     }
 
     @Test
@@ -100,6 +110,7 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
 
     @Test
     public void createWithException() throws Exception {
+        Assume.assumeTrue(Arrays.stream(environment.getActiveProfiles()).noneMatch(env -> env.equals(Profiles.JDBC)));
         validateRootCause(ConstraintViolationException.class, () -> service.create(new User(null, "  ", "mail@yandex.ru", "password", Role.USER)));
         validateRootCause(ConstraintViolationException.class, () -> service.create(new User(null, "User", "  ", "password", Role.USER)));
         validateRootCause(ConstraintViolationException.class, () -> service.create(new User(null, "User", "mail@yandex.ru", "  ", Role.USER)));

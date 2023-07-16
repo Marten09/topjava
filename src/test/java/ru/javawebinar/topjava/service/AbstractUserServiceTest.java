@@ -1,55 +1,29 @@
 package ru.javawebinar.topjava.service;
 
-import org.junit.Assume;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
-import org.springframework.test.context.ActiveProfiles;
-import ru.javawebinar.topjava.Profiles;
+import org.springframework.test.context.ContextConfiguration;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.validation.ConstraintViolationException;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertThrows;
-import static ru.javawebinar.topjava.Profiles.NO_CACHE;
 import static ru.javawebinar.topjava.UserTestData.*;
 
-@ActiveProfiles(NO_CACHE)
+@ContextConfiguration("classpath:spring/override-spring-cache.xml")
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public abstract class AbstractUserServiceTest extends AbstractServiceTest {
 
     @Autowired
     protected UserService service;
-
-//    @Autowired
-//    private CacheManager cacheManager;
-//
-//    @Autowired(required = false)
-//    protected JpaUtil jpaUtil;
-//
-    @Autowired
-    Environment environment;
-//
-//    @Before
-//    public void setup() {
-//        cacheManager.getCache("users").clear();
-//        if (jpaUtil != null) {
-//            jpaUtil.clear2ndLevelHibernateCache();
-//        }
-//    }
-//
-//    @Before
-//    public void evictAllCaches(){
-//        for(String name : cacheManager.getCacheNames()){
-//            cacheManager.getCache(name).clear();
-//        }
-//    }
 
     @Test
     public void create() {
@@ -96,21 +70,26 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    public void update() {
-        User updated = getUpdated();
-        service.update(updated);
-        USER_MATCHER.assertMatch(service.get(ADMIN_ID), getUpdated());
+    public void getByEmailNotExist() {
+        assertThrows(NotFoundException.class, () -> service.getByEmail("ivan@yandex.ru"));
     }
 
     @Test
-    public void getAll() {
+    public void a1update() {
+        User updated = getUpdated();
+        service.update(updated);
+        USER_MATCHER.assertMatch(service.get(ADMIN_ID), getUpdated());
+        USER_MATCHER.assertMatch(service.getAll(), guest, updated, user);
+    }
+
+    @Test
+    public void a2getAll() {
         List<User> all = service.getAll();
         USER_MATCHER.assertMatch(all, admin, guest, user);
     }
 
     @Test
     public void createWithException() throws Exception {
-        Assume.assumeTrue(Arrays.stream(environment.getActiveProfiles()).noneMatch(env -> env.equals(Profiles.JDBC)));
         validateRootCause(ConstraintViolationException.class, () -> service.create(new User(null, "  ", "mail@yandex.ru", "password", Role.USER)));
         validateRootCause(ConstraintViolationException.class, () -> service.create(new User(null, "User", "  ", "password", Role.USER)));
         validateRootCause(ConstraintViolationException.class, () -> service.create(new User(null, "User", "mail@yandex.ru", "  ", Role.USER)));

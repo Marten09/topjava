@@ -16,10 +16,10 @@ public class ValidationUtil {
     private ValidationUtil() {
     }
 
-    public static void validate(Object object) {
-        Set<ConstraintViolation<Object>> constraintViolations = validator.validate(object);
-        if(!constraintViolations.isEmpty()) {
-            throw new ConstraintViolationException("Save user - validation error", constraintViolations);
+    public static <T> void validate(T object) {
+        Set<ConstraintViolation<T>> constraintViolations = validator.validate(object);
+        if (!constraintViolations.isEmpty()) {
+            throw new ConstraintViolationException("Validation error", constraintViolations);
         }
     }
 

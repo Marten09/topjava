@@ -1,6 +1,5 @@
 package ru.javawebinar.topjava.repository.jdbc;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,7 +14,6 @@ import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 import ru.javawebinar.topjava.util.ValidationUtil;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -91,8 +89,12 @@ public class JdbcUserRepository implements UserRepository {
 
     @Override
     public List<User> getAll() {
-        return jdbcTemplate.query("SELECT * FROM users u LEFT JOIN user_role ur on u.id = ur.user_id ORDER BY name, email", (ResultSetExtractor<List<User>>) rs -> {
-            Map<Integer, User> userMap = new LinkedHashMap<>();
+        return jdbcTemplate.query("SELECT * FROM users u LEFT JOIN user_role ur on u.id = ur.user_id ORDER BY name, email", getExtractor());
+    }
+
+    private ResultSetExtractor<List<User>> getExtractor() {
+        Map<Integer, User> userMap = new LinkedHashMap<>();
+        return rs -> {
             while (rs.next()) {
                 int id = rs.getInt("id");
                 User user = userMap.computeIfAbsent(id, var -> {
@@ -102,8 +104,8 @@ public class JdbcUserRepository implements UserRepository {
                         throw new RuntimeException(e);
                     }
                 });
-                if(user.getRoles() == null) {
-                    user.setRoles(new HashSet<>());
+                if (user.getRoles() == null) {
+                    user.setRoles(EnumSet.noneOf(Role.class));
                 }
                 String role = rs.getString("role");
                 if (role != null && !role.isEmpty()) {
@@ -111,7 +113,7 @@ public class JdbcUserRepository implements UserRepository {
                 }
             }
             return new ArrayList<>(userMap.values());
-        });
+        };
     }
 
     private User queryRolesForUser(User user) {

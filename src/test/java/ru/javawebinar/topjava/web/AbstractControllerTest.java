@@ -1,6 +1,5 @@
 package ru.javawebinar.topjava.web;
 
-import org.junit.jupiter.api.Assumptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
@@ -36,7 +35,7 @@ public abstract class AbstractControllerTest {
     }
 
     @Autowired
-    Environment environment;
+    private Environment environment;
 
     private MockMvc mockMvc;
 

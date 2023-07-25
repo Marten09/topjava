@@ -38,7 +38,7 @@ class ProfileRestControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 // https://jira.spring.io/browse/SPR-14472
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(USER_MATCHER.contentJson(UserTestData.getWithMeals()));
+                .andExpect(USER_WITH_MEALS_MATCHER.contentJson(UserTestData.getWithMeals()));
     }
 
     @Test

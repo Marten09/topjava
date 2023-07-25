@@ -26,7 +26,7 @@ class MealRestControllerTest extends AbstractControllerTest {
     private static final String REST_URL = MealRestController.REST_URL + '/';
 
     @Autowired
-    MealService service;
+    private MealService service;
 
     @Test
     void get() throws Exception {
@@ -84,23 +84,21 @@ class MealRestControllerTest extends AbstractControllerTest {
     void getBetween() throws Exception {
         perform(MockMvcRequestBuilders.get(REST_URL + "/filter")
                 .param("startDate", "2020-01-30")
-                .param("startTime", "10:00")
-                .param("endDate", "2020-01-30")
-                .param("endTime", "20:00"))
+                .param("startTime", "12:00")
+                .param("endDate", "2020-01-31")
+                .param("endTime", "23:00"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(MEAL_TO_MATCHER.contentJson(MealsUtil.getTos(List.of(meal2, meal1), user.getCaloriesPerDay())));
+                .andExpect(MEAL_TO_MATCHER.contentJson(List.of(mealTo7, mealTo6, mealTo3, mealTo2)));
     }
 
     @Test
     void getBetweenWithNullable() throws Exception {
         perform(MockMvcRequestBuilders.get(REST_URL + "/filter")
                 .param("startDate", "2020-01-30")
-                .param("startTime", "10:00")
-                .param("endDate", "")
-                .param("endTime", ""))
+                .param("startTime", "12:00"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(MEAL_TO_MATCHER.contentJson(MealsUtil.getTos(List.of(meal7, meal6, meal5, meal3, meal2, meal1), user.getCaloriesPerDay())));
+                .andExpect(MEAL_TO_MATCHER.contentJson(List.of(mealTo7, mealTo6, mealTo3, mealTo2)));
     }
 }

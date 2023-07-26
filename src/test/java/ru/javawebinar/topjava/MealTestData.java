@@ -32,10 +32,10 @@ public class MealTestData {
     public static final MealTo mealTo1 = MealsUtil.createTo(meal1, false);
     public static final MealTo mealTo2 = MealsUtil.createTo(meal2, false);
     public static final MealTo mealTo3 = MealsUtil.createTo(meal3, false);
-    public static final MealTo mealTo4 = MealsUtil.createTo(meal4, false);
-    public static final MealTo mealTo5 = MealsUtil.createTo(meal5, false);
-    public static final MealTo mealTo6 = MealsUtil.createTo(meal6, false);
-    public static final MealTo mealTo7 = MealsUtil.createTo(meal7, false);
+    public static final MealTo mealTo4 = MealsUtil.createTo(meal4, true);
+    public static final MealTo mealTo5 = MealsUtil.createTo(meal5, true);
+    public static final MealTo mealTo6 = MealsUtil.createTo(meal6, true);
+    public static final MealTo mealTo7 = MealsUtil.createTo(meal7, true);
 
     public static final List<Meal> meals = List.of(meal7, meal6, meal5, meal4, meal3, meal2, meal1);
 

@@ -2,7 +2,10 @@ const userAjaxUrl = "admin/users/";
 
 // https://stackoverflow.com/a/5064235/548473
 const ctx = {
-    ajaxUrl: userAjaxUrl
+    ajaxUrl: userAjaxUrl,
+    updateTable: function () {
+        $.get(userAjaxUrl, updateTableByData);
+    }
 };
 
 // $(document).ready(function () {
@@ -45,3 +48,20 @@ $(function () {
         })
     );
 });
+
+function checkEnabled(checkbox) {
+    let closestTableRow = $(checkbox).closest('tr');
+    $.ajax({
+        type: "PATCH",
+        url: ctx.ajaxUrl + closestTableRow.attr("id") + '/enabled?enabled=' + checkbox.checked
+    })
+        .done(function () {
+            successNoty("User " + (checkbox.checked ? 'enabled' : 'disabled'));
+        })
+        .fail(function () {
+            checkbox.checked = !checkbox.checked;
+        })
+        .always(function () {
+            closestTableRow.attr("data-user-enabled", checkbox.checked);
+        });
+}

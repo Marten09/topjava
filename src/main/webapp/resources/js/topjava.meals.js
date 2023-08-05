@@ -17,9 +17,29 @@ function clearFilter() {
     $.get(mealAjaxUrl, updateTableByData);
 }
 
+$.ajaxSetup({
+    converters: {
+        "text json": function (stringData) {
+            let json = JSON.parse(stringData);
+            if (typeof json === 'object') {
+                $(json).each(function () {
+                    if (this.hasOwnProperty('dateTime')) {
+                        this.dateTime = this.dateTime.substr(0, 16).replace('T', ' ');
+                    }
+                });
+            }
+            return json;
+        }
+    }
+});
+
 $(function () {
     makeEditable(
         $("#datatable").DataTable({
+            "ajax": {
+                "url": mealAjaxUrl,
+                "dataSrc": ""
+            },
             "paging": false,
             "info": true,
             "columns": [
@@ -33,12 +53,14 @@ $(function () {
                     "data": "calories"
                 },
                 {
-                    "defaultContent": "Edit",
-                    "orderable": false
+                    "defaultContent": "",
+                    "orderable": false,
+                    "render": renderEditBtn
                 },
                 {
-                    "defaultContent": "Delete",
-                    "orderable": false
+                    "defaultContent": "",
+                    "orderable": false,
+                    "render": renderDeleteBtn
                 }
             ],
             "order": [
@@ -46,7 +68,50 @@ $(function () {
                     0,
                     "desc"
                 ]
-            ]
+            ],
+            "createdRow": function (row, data, dataIndex) {
+                $(row).attr("data-meal-excess", data.excess);
+            }
         })
     );
+
+    $('#startDate').datetimepicker({
+        lang:'de',
+        i18n:{de:{
+                months:[
+                    'Januar','Februar','März','April','Mai','Juni','Juli','August',
+                    'September','Oktober','November','Dezember',],
+                dayOfWeek:["So.", "Mo", "Di", "Mi", "Do", "Fr", "Sa.",],
+            }},
+        timepicker:false,
+        format:'Y-m-d',
+    });
+
+    $('#endDate').datetimepicker({
+        lang:'de',
+        i18n:{de:{
+                months:[
+                    'Januar','Februar','März','April','Mai','Juni','Juli','August',
+                    'September','Oktober','November','Dezember',],
+                dayOfWeek:["So.", "Mo", "Di", "Mi", "Do", "Fr", "Sa.",],
+            }},
+        timepicker:false,
+        format:'Y-m-d',
+    });
+
+    $('#startTime').datetimepicker({
+        datepicker:false,
+        format:'H:i',
+    });
+
+    $('#endTime').datetimepicker({
+        datepicker:false,
+        format:'H:i',
+    });
+
+    $('#dateTime').datetimepicker({
+        format: 'Y-m-d H:i',
+        inline:true,
+        lang:'ru'
+    });
 });

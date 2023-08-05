@@ -76,42 +76,26 @@ $(function () {
     );
 
     $('#startDate').datetimepicker({
-        lang:'de',
-        i18n:{de:{
-                months:[
-                    'Januar','Februar','März','April','Mai','Juni','Juli','August',
-                    'September','Oktober','November','Dezember',],
-                dayOfWeek:["So.", "Mo", "Di", "Mi", "Do", "Fr", "Sa.",],
-            }},
         timepicker:false,
-        format:'Y-m-d',
+        format:'Y-m-d'
     });
 
     $('#endDate').datetimepicker({
-        lang:'de',
-        i18n:{de:{
-                months:[
-                    'Januar','Februar','März','April','Mai','Juni','Juli','August',
-                    'September','Oktober','November','Dezember',],
-                dayOfWeek:["So.", "Mo", "Di", "Mi", "Do", "Fr", "Sa.",],
-            }},
         timepicker:false,
-        format:'Y-m-d',
+        format:'Y-m-d'
     });
 
     $('#startTime').datetimepicker({
         datepicker:false,
-        format:'H:i',
+        format:'H:i'
     });
 
     $('#endTime').datetimepicker({
         datepicker:false,
-        format:'H:i',
+        format:'H:i'
     });
 
     $('#dateTime').datetimepicker({
-        format: 'Y-m-d H:i',
-        inline:true,
-        lang:'ru'
+        format: 'Y-m-d H:i'
     });
 });

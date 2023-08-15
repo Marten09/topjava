@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Propagation;
@@ -109,7 +108,8 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.url", is(PROFILE_MEAL_URL + MEAL1_ID)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.type", is(VALIDATION_ERROR.name())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.detail", is(PROFILE_MEAL_EXISTS)));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.details").isArray())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.details[0]", is(PROFILE_MEAL_EXISTS)));
     }
 
     @Test
@@ -153,7 +153,8 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.url", is(PROFILE_MEAL_URL)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.type", is(VALIDATION_ERROR.name())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.detail", is(PROFILE_MEAL_EXISTS)));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.details").isArray())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.details[0]", is(PROFILE_MEAL_EXISTS)));
     }
 
     @Test

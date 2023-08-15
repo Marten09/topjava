@@ -127,7 +127,8 @@ class AdminRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.url", is(ADMIN_URL + USER_ID)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.type", is(VALIDATION_ERROR.name())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.detail", is(PROFILE_USER_EXISTS)));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.details").isArray())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.details[0]", is(PROFILE_USER_EXISTS)));
     }
 
     @Test
@@ -170,7 +171,8 @@ class AdminRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.url", is(ADMIN_URL)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.type", is(VALIDATION_ERROR.name())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.detail", is(PROFILE_USER_EXISTS)));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.details").isArray())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.details[0]", is(PROFILE_USER_EXISTS)));
     }
 
     @Test

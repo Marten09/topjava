@@ -22,6 +22,10 @@ public class UserTestData {
                         throw new UnsupportedOperationException();
                     });
 
+    public static final String PROFILE_URL = "http://localhost/rest/profile";
+    public static final String ADMIN_URL = "http://localhost/rest/admin/users/";
+    public static final String PROFILE_USER_EXISTS = "Пользователь с этим электронным адресом уже существует";
+
     public static final int USER_ID = START_SEQ;
     public static final int ADMIN_ID = START_SEQ + 1;
     public static final int GUEST_ID = START_SEQ + 2;

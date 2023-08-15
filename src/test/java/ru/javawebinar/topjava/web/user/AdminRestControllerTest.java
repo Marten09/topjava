@@ -2,11 +2,11 @@ package ru.javawebinar.topjava.web.user;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
@@ -14,6 +14,7 @@ import ru.javawebinar.topjava.service.UserService;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -21,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.javawebinar.topjava.TestUtil.userHttpBasic;
 import static ru.javawebinar.topjava.UserTestData.*;
+import static ru.javawebinar.topjava.util.exception.ErrorType.VALIDATION_ERROR;
 
 class AdminRestControllerTest extends AbstractControllerTest {
 
@@ -100,6 +102,35 @@ class AdminRestControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void updateNotValidation() throws Exception {
+        User updated = getUpdated();
+        updated.setCaloriesPerDay(0);
+        updated.setName(null);
+
+        perform(MockMvcRequestBuilders.put(REST_URL + USER_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(admin))
+                .content(jsonWithPassword(updated, updated.getPassword())))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void updateWithDuplicateEmail() throws Exception {
+        User updated = getUpdated();
+        updated.setEmail(admin.getEmail());
+
+        perform(MockMvcRequestBuilders.put(REST_URL + USER_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(admin))
+                .content(jsonWithPassword(updated, updated.getPassword())))
+                .andExpect(status().isConflict())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.url", is(ADMIN_URL + USER_ID)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.type", is(VALIDATION_ERROR.name())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.detail", is(PROFILE_USER_EXISTS)));
+    }
+
+    @Test
     void createWithLocation() throws Exception {
         User newUser = getNew();
         ResultActions action = perform(MockMvcRequestBuilders.post(REST_URL)
@@ -128,12 +159,18 @@ class AdminRestControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    @Transactional
-    void createWithDuplicateEmail() {
+    @Transactional(propagation = Propagation.NEVER)
+    void createWithDuplicateEmail() throws Exception {
         User newUser = new User(null, "new user", user.getEmail(), "newpass", 2000, Role.USER);
-        TestTransaction.flagForCommit();
-        TestTransaction.end();
-        assertThrows(DataIntegrityViolationException.class, () -> userService.create(newUser));
+
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(admin))
+                .content(jsonWithPassword(newUser, newUser.getPassword())))
+                .andExpect(status().isConflict())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.url", is(ADMIN_URL)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.type", is(VALIDATION_ERROR.name())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.detail", is(PROFILE_USER_EXISTS)));
     }
 
     @Test

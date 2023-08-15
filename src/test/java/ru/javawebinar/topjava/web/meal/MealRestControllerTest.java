@@ -1,13 +1,13 @@
 package ru.javawebinar.topjava.web.meal;
 
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
@@ -15,18 +15,18 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
-import java.time.LocalDateTime;
-import java.time.Month;
-
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.TestUtil.userHttpBasic;
 import static ru.javawebinar.topjava.UserTestData.USER_ID;
 import static ru.javawebinar.topjava.UserTestData.user;
 import static ru.javawebinar.topjava.util.MealsUtil.createTo;
 import static ru.javawebinar.topjava.util.MealsUtil.getTos;
+import static ru.javawebinar.topjava.util.exception.ErrorType.VALIDATION_ERROR;
 
 class MealRestControllerTest extends AbstractControllerTest {
 
@@ -86,6 +86,33 @@ class MealRestControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void updateNotValidation() throws Exception {
+        Meal updated = getUpdated();
+        updated.setDescription("");
+        updated.setCalories(null);
+
+        perform(MockMvcRequestBuilders.put(REST_URL + MEAL1_ID).contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(user))
+                .content(JsonUtil.writeValue(updated)))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void updateWithDuplicateDateTime() throws Exception {
+        Meal updated = getUpdated();
+        updated.setDateTime(meal3.getDateTime());
+
+        perform(MockMvcRequestBuilders.put(REST_URL + MEAL1_ID).contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(user))
+                .content(JsonUtil.writeValue(updated)))
+                .andExpect(status().isConflict())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.url", is(PROFILE_MEAL_URL + MEAL1_ID)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.type", is(VALIDATION_ERROR.name())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.detail", is(PROFILE_MEAL_EXISTS)));
+    }
+
+    @Test
     void createWithLocation() throws Exception {
         Meal newMeal = getNew();
         ResultActions action = perform(MockMvcRequestBuilders.post(REST_URL)
@@ -115,12 +142,18 @@ class MealRestControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    @Transactional
-    void createWithDuplicateDateTime() {
-        Meal newMeal = new Meal(null, LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "meal", 200);
-        TestTransaction.flagForCommit();
-        TestTransaction.end();
-        assertThrows(DataIntegrityViolationException.class, () -> mealService.create(newMeal, USER_ID));
+    @Transactional(propagation = Propagation.NEVER)
+    void createWithDuplicateDateTime() throws Exception {
+        Meal newMeal = new Meal(null, meal1.getDateTime(), "meal", 200);
+
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(user))
+                .content(JsonUtil.writeValue(newMeal)))
+                .andExpect(status().isConflict())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.url", is(PROFILE_MEAL_URL)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.type", is(VALIDATION_ERROR.name())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.detail", is(PROFILE_MEAL_EXISTS)));
     }
 
     @Test

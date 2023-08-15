@@ -23,6 +23,7 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -83,17 +84,21 @@ public class ExceptionInfoHandler {
     public ErrorInfo bindingError(HttpServletRequest req, BindException e) {
         return logAndGetErrorInfo(req, e, false, VALIDATION_ERROR, e.getFieldErrors().stream()
                 .map(fe -> String.format("[%s] %s", fe.getField(), fe.getDefaultMessage()))
-                .collect(Collectors.joining("<br>")));
+                .collect(Collectors.toList()));
     }
 
     //    https://stackoverflow.com/questions/538870/should-private-helper-methods-be-static-if-they-can-be-static
-    private static ErrorInfo logAndGetErrorInfo(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType, String errorMessage) {
+    private static ErrorInfo logAndGetErrorInfo(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType, List<String> listMessages) {
         Throwable rootCause = ValidationUtil.getRootCause(e);
         if (logException) {
             log.error(errorType + " at request " + req.getRequestURL(), rootCause);
         } else {
             log.warn("{} at request  {}: {}", errorType, req.getRequestURL(), rootCause.toString());
         }
-        return new ErrorInfo(req.getRequestURL(), errorType, errorMessage);
+        return new ErrorInfo(req.getRequestURL(), errorType, listMessages);
+    }
+
+    private static ErrorInfo logAndGetErrorInfo(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType, String errorMessage) {
+        return logAndGetErrorInfo(req, e, logException, errorType, List.of(errorMessage));
     }
 }

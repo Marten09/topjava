@@ -14,6 +14,9 @@ public class MealTestData {
     public static final MatcherFactory.Matcher<Meal> MEAL_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(Meal.class, "user");
     public static MatcherFactory.Matcher<MealTo> TO_MATCHER = MatcherFactory.usingEqualsComparator(MealTo.class);
 
+    public static final String PROFILE_MEAL_URL = "http://localhost/rest/profile/meals/";
+    public static final String PROFILE_MEAL_EXISTS = "Еда с такой датой и временем уже существует";
+
     public static final int NOT_FOUND = 10;
     public static final int MEAL1_ID = START_SEQ + 3;
     public static final int ADMIN_MEAL_ID = START_SEQ + 10;
